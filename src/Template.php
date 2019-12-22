@@ -73,7 +73,9 @@ class Template {
 		return ob_get_clean();
 	}
 
-
+	public function locale(){
+		return $this->locale;
+	}
 
 
 	////////////
