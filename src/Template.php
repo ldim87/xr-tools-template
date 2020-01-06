@@ -10,31 +10,27 @@ namespace XrTools;
  */
 class Template {
 
-	private $templatePath;
-
-	private $templatePathPrefix = '';
-
 	private $parts = [];
 
-	private $config;
+	private $config = [];
 
 	private $locale;
 
-	function __construct(Config $config, Locale $locale){
-		$this->config = $config;
+	public function __construct(Locale $locale){
 		$this->locale = $locale;
-	}
-	
-	public function setTemplatePath(string $path){
-		$this->templatePath = $path;
-	}
-
-	public function getTemplatePath(): string {
-		return $this->templatePath;
 	}
 
 	public function set($part, $value){
-		$this->parts[$part] = $value;
+		if(is_array($part)){
+			$this->setMulti($part);
+		}
+		else {
+			$this->parts[$part] = $value;
+		}
+	}
+
+	public function push($part, $value){
+		$this->parts[$part][] = $value;
 	}
 
 	public function setMulti(array $parts){
@@ -61,32 +57,35 @@ class Template {
 		}
 	}
 
-	public function getResult(){
-		// special "null" theme
-		if(empty($this->templatePath)){
-			return $this->get('body');
+	public function config($key, $value = null){
+		// write config
+		if(isset($value)){
+			$this->config[$key] = $value;
+			return;
 		}
-
-		// full theme
-		ob_start();
-		include $this->templatePath;
-		return ob_get_clean();
+		// read config
+		else {
+			return $this->config[$key] ?? null;
+		}
 	}
 
+	/**
+	 * Proxy to Locale Service
+	 * @return \XrTools\Locale
+	 */
 	public function locale(){
 		return $this->locale;
 	}
 
-
 	////////////
-	// :TODO: //
+	// :TODO:REFACTOR: //
 	////////////
 
 
 
 
 	/**
-	 *	:TODO: Переделать (пока что это просто перенесено из general.php)
+	 *	:TODO:REFACTOR: Переделать (пока что это просто перенесено из general.php)
 	 * 
 	 * Формирует канонический адрес в $GLOBALS['head']['rel_canonical'] для мета тега rel=canonical в шаблонах вывода страниц
 	 * @param  array  $ruleset Set of rules to generate a canonical URL. Processed in this order:
