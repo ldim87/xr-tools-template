@@ -15,9 +15,11 @@ class Template {
 	private $config = [];
 
 	private $locale;
+	private $router;
 
-	public function __construct(Locale $locale){
+	public function __construct(Locale $locale, Router $router){
 		$this->locale = $locale;
+		$this->router = $router;
 	}
 
 	public function set($part, $value){
@@ -26,6 +28,14 @@ class Template {
 		}
 		else {
 			$this->parts[$part] = $value;
+		}
+	}
+
+	public function pushInit($part, $first_value = null){
+		$this->parts = [];
+
+		if(isset($first_value)){
+			$this->parts[] = $first_value;
 		}
 	}
 
@@ -77,46 +87,40 @@ class Template {
 		return $this->locale;
 	}
 
-	////////////
-	// :TODO:REFACTOR: //
-	////////////
-
-
-
 
 	/**
-	 *	:TODO:REFACTOR: Переделать (пока что это просто перенесено из general.php)
+	 * rel_canonical_rules()
 	 * 
-	 * Формирует канонический адрес в $GLOBALS['head']['rel_canonical'] для мета тега rel=canonical в шаблонах вывода страниц
+	 * Формирует канонический адрес для мета тега rel=canonical в шаблонах вывода страниц
 	 * @param  array  $ruleset Set of rules to generate a canonical URL. Processed in this order:
 	 *                         	<ul>
 	 *                         		<li> <strong> url_go_max </strong> int
-	 *                         			- last index of an array $GLOBALS['arr_url_go'] which canonical URL is generated from (indexes greater than url_go_max are ignored)
+	 *                         			- last index of an array $urlParts which canonical URL is generated from (indexes greater than url_go_max are ignored)
 	 *                         		<li> <strong> query_count_max </strong> int
 	 *                         			- ignore the whole query string in canonical URL if there are more _GET parameters than this number
 	 *                         	</ul>
 	 * @param  array  $sys     Settings:
 	 *                         	<ul>
 	 *                         		<li> <strong> return_only </strong> bool (off)
-	 *                         			- do not save result to $GLOBALS['head']['rel_canonical'] | 
+	 *                         			- do not save result as $this->set('rel_canonical', $result)
 	 *                         		<li> <strong> rewrite </strong> bool (off)
-	 *                         			- by default result is saved only if $GLOBALS['head']['rel_canonical'] is empty.
-	 *                         			  This option forces to overwrite the existing canonical URL settings (i.e. for subpage to override it's inherited settings from parent)
+	 *                         			- by default result is saved only if $this->get('rel_canonical') is empty.
+	 *                         			  This option forces to overwrite the existing canonical URL settings (for subpage to override inherited parent settings)
 	 *                         	</ul>
 	 * @return string          Generated canonical URL
 	 */
-	function rel_canonical_rules($ruleset = array(), $sys=array()){
+	function relCanonicalRules($ruleset = array(), $sys=array()){
 		// результат
 		$rel_canonical = false;
 		
 		// проверяем максимальный уровень arr_url_go
 		if(isset($ruleset['url_go_max'])){
 			$url_go_max = (int) $ruleset['url_go_max'];
-			
-			if(isset($GLOBALS['arr_url_go'][$url_go_max])){
+
+			if($this->router->getUrlPart($url_go_max) !== false){
 				$rel_canonical = '';
 				for($i=0; $i<=$url_go_max; $i++){
-					$rel_canonical .= '/'.$GLOBALS['arr_url_go'][$i];
+					$rel_canonical .= '/'.$this->router->getUrlPart($i);
 				}
 			}
 		}
@@ -127,14 +131,14 @@ class Template {
 			
 			// учитываем $_GET['go']
 			if(count($_GET)-1 > $query_count_max){
-				$rel_canonical = '/'.$_GET['go'];
+				$rel_canonical = $this->router->getUrl(); // :DEBUG: Check
 			}
 		}
 		
 		// если нужно только вернуть результат и не нужна авто-настройка параметра в шаблоне
 		// авто-настройка записывается только если атрибут пуст или присутствует настройка 'rewrite'=>true
-		if(empty($sys['return_only']) && (empty($GLOBALS['head']['rel_canonical']) || !empty($sys['rewrite']))){
-			$GLOBALS['head']['rel_canonical'] = $rel_canonical;
+		if(empty($sys['return_only']) && (empty($this->get('rel_canonical')) || !empty($sys['rewrite']))){
+			$this->set('rel_canonical', $rel_canonical);
 		}
 		
 		return $rel_canonical;
