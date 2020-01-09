@@ -22,9 +22,9 @@ class Template {
 		$this->router = $router;
 	}
 
-	public function set($part, $value){
+	public function set($part, $value = null){
 		if(is_array($part)){
-			$this->setMulti($part);
+			$this->setMulti($part, $value);
 		}
 		else {
 			$this->parts[$part] = $value;
@@ -43,9 +43,9 @@ class Template {
 		$this->parts[$part][] = $value;
 	}
 
-	public function setMulti(array $parts){
-		foreach ($parts as $key => $value) {
-			$this->parts[$key] = $value;
+	public function setMulti(array $parts, $value = null){
+		foreach ($parts as $key => $part_value) {
+			$this->parts[$key] = $value ?? $part_value;
 		}
 	}
 	
@@ -89,8 +89,6 @@ class Template {
 
 
 	/**
-	 * rel_canonical_rules()
-	 * 
 	 * Формирует канонический адрес для мета тега rel=canonical в шаблонах вывода страниц
 	 * @param  array  $ruleset Set of rules to generate a canonical URL. Processed in this order:
 	 *                         	<ul>
