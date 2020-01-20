@@ -107,7 +107,7 @@ class Template {
 	 *                         	</ul>
 	 * @return string          Generated canonical URL
 	 */
-	function relCanonicalRules($ruleset = array(), $sys=array()){
+	function relCanonicalRules($ruleset = [], $sys = []){
 		// результат
 		$rel_canonical = false;
 		
@@ -127,7 +127,7 @@ class Template {
 		if($rel_canonical === false && isset($ruleset['query_count_max'])){
 			$query_count_max = (int) $ruleset['query_count_max'];
 			
-			// учитываем $_GET['go']
+			// учитываем rewrite параметр (напр. $_GET['go'])
 			if(count($_GET)-1 > $query_count_max){
 				$rel_canonical = $this->router->getUrl(); // :DEBUG: Check
 			}
