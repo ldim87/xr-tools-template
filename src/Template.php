@@ -22,20 +22,22 @@ class Template {
 		$this->router = $router;
 	}
 
-	public function set($part, $value = null){
+	public function set($part, $value){
 		if(is_array($part)){
-			$this->setMulti($part, $value);
+			$this->setBatch($part, $value);
 		}
 		else {
 			$this->parts[$part] = $value;
 		}
+
+		return $value;
 	}
 
 	public function pushInit($part, $first_value = null){
-		$this->parts = [];
+		$this->parts[$part] = [];
 
 		if(isset($first_value)){
-			$this->parts[] = $first_value;
+			$this->parts[$part][] = $first_value;
 		}
 	}
 
@@ -43,9 +45,23 @@ class Template {
 		$this->parts[$part][] = $value;
 	}
 
-	public function setMulti(array $parts, $value = null){
-		foreach ($parts as $key => $part_value) {
-			$this->parts[$key] = $value ?? $part_value;
+	public function append($part, string $value){
+
+		if(!isset($this->parts[$part])){
+			$this->parts[$part] = '';
+		}
+		elseif(!is_string($this->parts[$part])){
+			throw new \Exception('Appending is supported only against strings, ('.gettype($this->parts[$part]).' given)');			
+		}
+
+		$this->parts[$part] .= $value;
+
+		return $this->parts[$part];		
+	}
+
+	public function setBatch(array $parts, $value){
+		foreach ($parts as $part) {
+			$this->parts[$part] = $value;
 		}
 	}
 	
@@ -86,7 +102,6 @@ class Template {
 	public function locale(){
 		return $this->locale;
 	}
-
 
 	/**
 	 * Формирует канонический адрес для мета тега rel=canonical в шаблонах вывода страниц
@@ -141,10 +156,4 @@ class Template {
 		
 		return $rel_canonical;
 	}
-
-
-
-
-
-
 }
