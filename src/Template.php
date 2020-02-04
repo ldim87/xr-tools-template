@@ -144,7 +144,7 @@ class Template {
 			
 			// учитываем rewrite параметр (напр. $_GET['go'])
 			if(count($_GET)-1 > $query_count_max){
-				$rel_canonical = $this->router->getUrl(); // :DEBUG: Check
+				$rel_canonical = $this->router->getUrl();
 			}
 		}
 		
