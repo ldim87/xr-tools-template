@@ -36,12 +36,17 @@ class Template {
 	public function pushInit($part, $first_value = null){
 		$this->parts[$part] = [];
 
-		if(isset($first_value)){
+		if(!empty($first_value)){
 			$this->parts[$part][] = $first_value;
 		}
 	}
 
 	public function push($part, $value){
+
+		if(empty($value)){
+			return;
+		}
+
 		$this->parts[$part][] = $value;
 	}
 
