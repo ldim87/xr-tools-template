@@ -148,7 +148,7 @@ class Template {
 			$query_count_max = (int) $ruleset['query_count_max'];
 			
 			// учитываем rewrite параметр (напр. $_GET['go'])
-			if(count($_GET)-1 > $query_count_max){
+			if(count($this->router->getUrlQuery()) > $query_count_max){
 				$rel_canonical = $this->router->getUrl();
 			}
 		}
