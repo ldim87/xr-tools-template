@@ -50,18 +50,49 @@ class Template {
 		$this->parts[$part][] = $value;
 	}
 
+	public function pushMulti($part, array $values){
+		foreach ($values as $value) {
+			$this->parts[$part][] = $value;
+		}
+	}
+
+	public function pushPrepend($part, string $value){
+
+		$part_data = $this->parts[$part] ?? [];
+
+		array_unshift($part_data, $value);
+
+		$this->parts[$part] = $part_data;
+
+		return $this->parts[$part];
+	}
+
 	public function append($part, string $value){
 
 		if(!isset($this->parts[$part])){
 			$this->parts[$part] = '';
 		}
 		elseif(!is_string($this->parts[$part])){
-			throw new \Exception('Appending is supported only against strings, ('.gettype($this->parts[$part]).' given)');			
+			throw new \Exception('Appending is supported only against strings, ('.gettype($this->parts[$part]).' given)');
 		}
 
 		$this->parts[$part] .= $value;
 
-		return $this->parts[$part];		
+		return $this->parts[$part];
+	}
+
+	public function prepend($part, string $value){
+
+		if(!isset($this->parts[$part])){
+			$this->parts[$part] = '';
+		}
+		elseif(!is_string($this->parts[$part])){
+			throw new \Exception('Prepending is supported only against strings, ('.gettype($this->parts[$part]).' given)');
+		}
+
+		$this->parts[$part] = $value . $this->parts[$part];
+
+		return $this->parts[$part];
 	}
 
 	public function setBatch(array $parts, $value){
