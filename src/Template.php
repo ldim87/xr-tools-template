@@ -14,8 +14,8 @@ class Template {
 
 	private $config = [];
 
-	private $locale;
-	private $router;
+	protected $locale;
+	protected $router;
 
 	public function __construct(Locale $locale, Router $router){
 		$this->locale = $locale;
